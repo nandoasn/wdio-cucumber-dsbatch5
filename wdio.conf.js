@@ -1,3 +1,5 @@
+import { browser } from '@wdio/globals'
+
 export const config = {
     //
     // ====================
@@ -50,6 +52,9 @@ export const config = {
     // https://saucelabs.com/platform/platform-configurator
     //
     capabilities: [{
+        browserName: 'edge',
+    },
+    {
         browserName: 'chrome'
     }],
 
@@ -123,7 +128,13 @@ export const config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: ['spec','json','cucumberjs-json'],
+    reporters: ['spec','json','cucumberjs-json',
+        ['light',{
+            outputDir: './report',
+            outputFile:`report-${new Date()}`,    
+            addScreenshots: true,   
+        }]
+    ],
 
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
@@ -264,8 +275,13 @@ export const config = {
      * @param {number}                 result.duration  duration of scenario in milliseconds
      * @param {object}                 context          Cucumber World object
      */
-    // afterScenario: function (world, result, context) {
-    // },
+    afterScenario: async function (world, result, context) {
+        console.log("Ini di eksekusi dari after scenario, biasanya dimanfaatkan untuk screenshot failed test")
+        
+        if (!result.passed) {
+            await browser.saveScreenshot('screenshot/failed-test.png')
+        }
+    },
     /**
      *
      * Runs after a Cucumber Feature.
